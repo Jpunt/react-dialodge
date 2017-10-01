@@ -1,0 +1,33 @@
+.Modal-enter .Modal-background {
+  opacity: 0;
+  transition: opacity 0.2s ease-out;
+}
+.Modal-enter-active .Modal-background {
+  opacity: 1;
+}
+.Modal-exit .Modal-background {
+  opacity: 1;
+  transition: opacity 0.15s;
+}
+.Modal-exit-active .Modal-background {
+  opacity: 0;
+}
+
+.Modal-enter .Modal-box {
+  opacity: 0;
+  transform: translateY(10%);
+  transition: all 0.15s ease-out;
+}
+.Modal-enter-active .Modal-box {
+  opacity: 1;
+  transform: translateY(0);
+}
+.Modal-exit .Modal-box {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 0.15s;
+}
+.Modal-exit-active .Modal-box {
+  opacity: 0;
+  transform: translateY(10%);
+}
