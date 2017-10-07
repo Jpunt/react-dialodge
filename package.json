@@ -1,6 +1,6 @@
 {
   "name": "react-dialodge",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "React component to show dialogs",
   "repository": "git+https://github.com/Jpunt/react-dialodge.git",
   "homepage": "https://github.com/Jpunt/react-dialodge#readme",
@@ -10,7 +10,9 @@
   "author": "Jasper Haggenburg",
   "license": "ISC",
   "main": "dest/index.js",
-  "files": ["dest"],
+  "files": [
+    "dest"
+  ],
   "scripts": {
     "start": "watch 'npm run build' src --interval 0.1",
     "build": "babel src --out-dir dest",
