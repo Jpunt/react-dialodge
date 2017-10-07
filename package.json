@@ -10,6 +10,7 @@
   "author": "Jasper Haggenburg",
   "license": "ISC",
   "main": "dest/index.js",
+  "files": ["dest"],
   "scripts": {
     "start": "watch 'npm run build' src --interval 0.1",
     "build": "babel src --out-dir dest",
