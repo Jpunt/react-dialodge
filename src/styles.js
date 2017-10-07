@@ -10,6 +10,7 @@ export default {
     justifyContent: 'center',
     alignItems: 'flex-start',
     overflow: 'auto',
+    zIndex: 100000,
   },
   containerIsOpen: {
     pointerEvents: 'auto',
@@ -32,7 +33,7 @@ export default {
     padding: 20,
     maxWidth: 1000,
     borderRadius: 4,
-    boxShadow: '0 0 10px black',
+    boxShadow: '0 0 10px rgba(0, 0, 0, 0.25)',
   },
   contentIsFullScreen: {
     margin: 0,

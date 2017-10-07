@@ -1,29 +1,27 @@
-import './transitions.css';
-
 import React from 'react';
 import PropTypes from 'prop-types';
-import {TransitionGroup, Transition, CSSTransition} from 'react-transition-group';
+import {TransitionGroup, Transition} from 'react-transition-group';
 
 import styles from './styles';
-
-const duration = 2000;
-
-const defaultStyle = {
-  transition: `opacity ${duration}ms ease-in-out`,
-  opacity: 0,
-};
-
-const transitionStyles = {
-  entering: {opacity: 1},
-  entered: {opacity: 1},
-  exiting: {opacity: 0},
-  exited: {opacity: 0},
-};
+import * as _transitions from './transitions';
+export const transitions = _transitions;
 
 export default class Dialodge extends React.Component {
   static propTypes = {
     children: PropTypes.node,
     close: PropTypes.func.isRequired,
+    backgroundStyle: PropTypes.object,
+    contentStyle: PropTypes.object,
+    backgroundTransition: PropTypes.object,
+    contentTransition: PropTypes.object,
+    focusOnFirstInput: PropTypes.bool,
+  };
+
+  static defaultProps = {
+    backgroundStyle: {},
+    contentStyle: {},
+    backgroundTransition: _transitions.fade(150),
+    contentTransition: _transitions.fromBottom({enter: 150, exit: 150}),
   };
 
   state = {
@@ -45,6 +43,13 @@ export default class Dialodge extends React.Component {
     this.setState({viewPortIsSmall: window.innerWidth < 600});
   };
 
+  onChangeContent = () => {
+    if (this.props.children && this.props.focusOnFirstInput) {
+      const firstInputInModal = this.contentRef.querySelector('input');
+      firstInputInModal && firstInputInModal.focus();
+    }
+  }
+
   onChangeContentHeight = () => {
     const windowHeight = window.innerHeight;
     const contentHeight = this.contentRef && this.contentRef.getBoundingClientRect().height;
@@ -54,6 +59,7 @@ export default class Dialodge extends React.Component {
   componentDidMount() {
     window.document.addEventListener('keyup', this.onKeyUp);
     window.addEventListener('resize', this.onResize);
+    this.onChangeContent();
     this.onChangeContentHeight();
   }
 
@@ -72,40 +78,65 @@ export default class Dialodge extends React.Component {
     // Prevent de body from scrolling while the modal is open.
     // This has to be as high up as the body to work. If you
     // know a better way: please do!
-    window.document.body.style.overflow = !!this.props.children ? 'hidden' : 'auto';
+    window.document.body.style.overflow = this.props.children ? 'hidden' : 'auto';
 
     if (prevProps.children != this.props.children) {
+      this.onChangeContent();
       this.onChangeContentHeight();
+    }
+  }
+
+  getStylesForTransition(state, transition) {
+    switch (state) {
+      case 'entering':
+      default:
+        return {transition: transition.enter.transition, ...transition.enter.from};
+      case 'entered':
+        return {transition: transition.enter.transition, ...transition.enter.to};
+      case 'exiting':
+        return {transition: transition.exit.transition, ...transition.exit.to};
     }
   }
 
   render() {
     const {children, contentIsLargerThanViewPort, viewPortIsSmall} = this.state;
+    const {backgroundTransition, contentTransition} = this.props;
+    const enterTimeout = Math.max(backgroundTransition.enter.duration, contentTransition.enter.duration);
+    const exitTimeout = Math.max(backgroundTransition.exit.duration, contentTransition.exit.duration);
+
     return <TransitionGroup>
       {children &&
-        <CSSTransition key={0} classNames="Dialodge" timeout={{enter: 200, exit: 150}}>
-          <div style={{
-            ...styles.container,
-            ...(children && styles.containerIsOpen),
-            ...(!contentIsLargerThanViewPort && styles.containerContentIsVerticallyCentered),
-          }}>
-            <div
-              style={styles.background}
-              className="Dialodge-background"
-              onClick={this.props.close}
-            />
+        <Transition key={0} timeout={{enter: enterTimeout, exit: exitTimeout}}>
+          {state => (
+            <div style={{
+              ...styles.container,
+              ...(children && styles.containerIsOpen),
+              ...(!contentIsLargerThanViewPort && styles.containerContentIsVerticallyCentered),
+            }}>
+              <div
+                style={{
+                  ...styles.background,
+                  ...this.props.backgroundStyle,
+                  ...this.getStylesForTransition(state, backgroundTransition),
+                }}
+                className="Dialodge-background"
+                onClick={this.props.close}
+              />
 
-            <div
-              style={{
-                ...styles.content,
-                ...(contentIsLargerThanViewPort && viewPortIsSmall && styles.contentIsFullScreen),
-              }}
-              className="Dialodge-content"
-              ref={ref => (this.contentRef = ref)}>
-              {children}
+              <div
+                style={{
+                  ...styles.content,
+                  ...this.props.contentStyle,
+                  ...(contentIsLargerThanViewPort && viewPortIsSmall && styles.contentIsFullScreen),
+                  ...this.getStylesForTransition(state, contentTransition),
+                }}
+                className="Dialodge-content"
+                ref={ref => (this.contentRef = ref)}>
+                {children}
+              </div>
             </div>
-          </div>
-        </CSSTransition>
+          )}
+        </Transition>
       }
     </TransitionGroup>;
   }

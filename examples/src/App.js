@@ -1,10 +1,18 @@
 import React from 'react';
 
+import {transitions} from 'react-dialodge';
+
 import ModalButton from './ModalButton';
 
 export default () => (
   <div>
+    <p>Basic, small dialog with default transitions:</p>
     <ModalButton>
+      <p>Hi</p>
+    </ModalButton>
+
+    <p>Basic, small dialog with special transitions:</p>
+    <ModalButton contentTransition={transitions.bottomsUp}>
       <p>Hi</p>
     </ModalButton>
 
